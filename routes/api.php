@@ -32,6 +32,7 @@ Route::group(['prefix'=>'v1'],function(){
     Route::post('editNotification',[mainController::class,'update']);
     Route::get('settings',[mainController::class,'setting']);
     Route::get('contacts',[mainController::class,'contacts']);
+    Route::post('resetPassword',[mainController::class,'resetPassword']);
 
     Route::group(['middleware'=>'auth:api'],function(){
         Route::get('posts',[mainController::class,'posts']);

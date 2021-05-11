@@ -3,6 +3,7 @@
 namespace App\Http\controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\Reset;
 use App\Models\BloodType;
 use App\Models\Category;
 use App\Models\City;
@@ -14,6 +15,7 @@ use App\Models\Notification;
 use App\Models\Post;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use PhpParser\Node\Expr\AssignOp\Concat;
 
 class mainController extends Controller
@@ -26,6 +28,33 @@ class mainController extends Controller
     return response()->json($response);
     }
 
+
+   function smsMisr($to, $message)
+   {
+       $url = 'https://smsmisr.com/api/webapi/?';
+       $push_payload = array(
+           "username" => "*****",
+           "password" => "*****",
+           "language" => "2",
+           "sender" => "ipda3",
+           "mobile" => '2' . $to,
+           "message" => $message,
+       );
+
+       $rest = curl_init();
+       curl_setopt($rest, CURLOPT_URL, $url.http_build_query($push_payload));
+       curl_setopt($rest, CURLOPT_POST, 1);
+       curl_setopt($rest, CURLOPT_POSTFIELDS, $push_payload);
+       curl_setopt($rest, CURLOPT_SSL_VERIFYPEER, true);  //disable ssl .. never do it online
+       curl_setopt($rest, CURLOPT_HTTPHEADER,
+           array(
+               "Content-Type" => "application/x-www-form-urlencoded"
+           ));
+       curl_setopt($rest, CURLOPT_RETURNTRANSFER, 1); //by ibnfarouk to stop outputting result.
+       $response = curl_exec($rest);
+       curl_close($rest);
+       return $response;
+   }
 
     public function governorate(){
         $governorate = Governorates::all();
@@ -83,14 +112,34 @@ class mainController extends Controller
 
     }
     public function update(Request $request){
-     $data = Notification::find($request->id);
-     $data->tittle = $request->tittle;
-     $data->content = $request->content;
-     $data->donation_request_id = $request->donation;
-     $data->save();
-     return $this->apiResponse(1,'تم التعديل بنجاح',$data);
+     $update = Notification::find($request->id);
+     $update->tittle = $request->tittle;
+     $update->content = $request->content;
+     $update->donation_request_id = $request->donation;
+     $update->save();
+     return $this->apiResponse(1,'تم التعديل بنجاح',$update);
+    }
+public function resetPassword(Request $request){
+     $user = Client::where('phone',$request->phone)->first();
+     if($user)
+     {
+         $code = mt_rand(40,110);
+         $updatepin = $user->update(['pin_code'=>$code]);
+         if($updatepin){
+        // $this->smsMisr($request->phone,"your ResetCode is".$code);
+
+Mail::to($user->email)
+->bcc("abdullahhamdy29@gmail.com")
+->send(new Reset($code));
+return $this->apiResponse(1,'success','');
+
+}else{
+    return $this->apiResponse(0,'mistake','');
+}
+     }
 
     }
+
     public function editprofile(Request $request){
         $update = Client::updateOrCreate($request->all());
         return $this->apiResponse(1,'success',$update);
