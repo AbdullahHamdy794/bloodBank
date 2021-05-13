@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\governerateController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,3 +20,11 @@ Route::get('/', function () {
 
 Route::get('data',[governerateController::class,'index']);
 
+
+Auth::routes(['verify'=>true]);
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

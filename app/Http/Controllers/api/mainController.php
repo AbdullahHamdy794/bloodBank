@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\controllers\api;
+namespace App\Http\Controllers\Api;
+
 
 use App\Http\Controllers\Controller;
+
 use App\Mail\Reset;
 use App\Models\BloodType;
 use App\Models\Category;
@@ -14,19 +16,14 @@ use App\Models\Governorates;
 use App\Models\Notification;
 use App\Models\Post;
 use App\Models\Setting;
+use App\Trait\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use PhpParser\Node\Expr\AssignOp\Concat;
 
 class mainController extends Controller
 {
-    private function apiResponse($status,$message,$data){
-        $response =['status'=>$status,
-        'message'=>$message,
-        'data'=>$data,
-    ];
-    return response()->json($response);
-    }
+    use Helper;
 
 
    function smsMisr($to, $message)
@@ -101,8 +98,8 @@ class mainController extends Controller
         return $this->apiResponse(1,'success',$notification);
 
     }
-    public function setting(){
-        $setting = Setting::all();
+    public function setting(Request $request){
+        $setting = Setting::create($request->all());
         return $this->apiResponse(1,'This contstaint Setting',$setting);
 
     }
@@ -173,4 +170,41 @@ return $this->apiResponse(1,'success','');
         return $this->apiResponse(1,'success',$cities);
 
     }
+
+    public function postFavourite(Request $request){
+$rules =[
+    'post_id'=>'required|exists:posts,id',
+];
+$validator = validator()->make($request->all(),$rules);
+if($validator->fails())
+{
+    return $this->apiResponse(0,$validator->errors()->first(),$validator->errors());
+}
+$toggle = $request->user()->favourites()->toggle($request->post_id);
+return $this->apiResponse(1,'success',$toggle);
+
+
+    }
+    public function favouriteMe(Request $request)
+    {
+        $post = $request->user()->favourites()->latest()->paginate(2);
+        return $post;
+    }
+public function verifNew(Request $request){
+    $validator = validator([
+        'api_token'=>'required',
+        'email'=>'required',
+    ]);
+    if($validator->fails())
+    {
+        return $this->apiResponse(0,$validator->errors()->first(),'');
+    }
+    else{
+        $token = $request->api_token;
+        return view('auth.passwords.resetnew')->with(
+            ['token' => $token, 'email' => $request->email]
+        );
+
+    }
+}
 }

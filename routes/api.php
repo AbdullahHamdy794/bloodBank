@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\controllers\api\authController;
+use App\Http\Controllers\api\favouriteController;
 use App\Http\controllers\api\mainController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,15 +31,27 @@ Route::group(['prefix'=>'v1'],function(){
     Route::get('notification',[mainController::class,'notifications']);
     Route::post('editprofile',[mainController::class,'editprofile']);
     Route::post('editNotification',[mainController::class,'update']);
-    Route::get('settings',[mainController::class,'setting']);
+    Route::post('settings',[mainController::class,'setting']);
     Route::get('contacts',[mainController::class,'contacts']);
     Route::post('resetPassword',[mainController::class,'resetPassword']);
+    Route::post('isfavourite',[mainController::class,'postFavourite']);
+    Route::get('myFavourite',[mainController::class,'FavouriteMe']);
+
 
     Route::group(['middleware'=>'auth:api'],function(){
         Route::get('posts',[mainController::class,'posts']);
+    Route::post('newpass',[mainController::class,'verifNew']);
+
 
 
         });
 
 
 });
+//MAIL_MAILER=smtp
+//MAIL_HOST=smtp.mailtrap.io
+////MAIL_PORT=2525
+//MAIL_USERNAME=c07ab7d90a0599
+//MAIL_PASSWORD=79250dc1c9db50
+//MAIL_ENCRYPTION=tls
+//MAIL_FROM_ADDRESS=abdullahhamdy29@gmail.com

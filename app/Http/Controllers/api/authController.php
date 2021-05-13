@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\controllers\api;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Trait\Helper;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -11,14 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 class authController extends Controller
 {
-    private function apiResponse($status,$message,$data){
-
-        $response =['status'=>$status,
-        'message'=>$message,
-        'data'=>$data,
-    ];
-    return response()->json($response);
-    }
+    use Helper;
 
 public function register(Request $request)
 {

@@ -23,22 +23,16 @@ class Client extends Authenticatable
         return $this->belongsTo('App\Models\City');
     }
 
-    public function getPost()
+    public function favourites()
     {
         return $this->belongsToMany('App\Models\Post');
     }
 
-    public function clientRequest()
+    public function clientRequests()
     {
         return $this->hasMany('App\Models\DanationRequest');
     }
-
-    public function clientsRequest()
-    {
-        return $this->hasMany('App\Models\DanationRequest');
-    }
-
-    public function notificationClients()
+    public function notifications()
     {
         return $this->belongsToMany('App\Models\Notification');
     }
@@ -48,7 +42,7 @@ class Client extends Authenticatable
         return $this->belongsToMany('App\Models\Governorates');
     }
 
-    public function clientbloodtypes()
+    public function clientBloodTypes()
     {
         return $this->belongsToMany('App\Models\BloodType');
     }
@@ -56,5 +50,6 @@ class Client extends Authenticatable
         'password',
         'api_token',
     ];
+
 
 }

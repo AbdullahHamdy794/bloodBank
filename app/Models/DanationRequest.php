@@ -11,7 +11,7 @@ class DanationRequest extends Model
     public $timestamps = true;
     protected $fillable = array('patient_name','client_id' ,'patient_phone', 'city_id', 'hospital_name', 'details','longitude', 'letitude', 'bags_num');
 //client_id,londitude
-    public function donationCity()
+    public function City()
     {
         return $this->belongsTo('App\Models\City');
     }
@@ -21,7 +21,7 @@ class DanationRequest extends Model
         return $this->belongsTo('App\Models\Client');
     }
 
-    public function requestNotification()
+    public function Notification()
     {
         return $this->hasOne('App\Models\Notification');
     }
