@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Controllers\Controller;
-
+use Illuminate\Support\Str;
 use App\Mail\Reset;
 use App\Models\BloodType;
 use App\Models\Category;
@@ -25,6 +25,33 @@ class mainController extends Controller
 {
     use Helper;
 
+
+    public function register(Request $request)
+{
+   $validator = validator()->make($request->all(),[
+       'name'=>'required',
+       'phone'=>'required',
+       'blood_type_id'=>'required',
+       'password'=>'required|confirmed',
+       'city_id'=>'required',
+       'last_donation_date'=>'required',
+       'email'=>'required|unique:clients',
+   ]);
+   if($validator->fails())
+   {
+       return $this->apiResponse(0,$validator->errors()->first(),$validator->errors());
+
+   }
+   $request->merge(['password'=>bcrypt($request->password)]);
+   $client = Client::create($request->all());
+   $client->api_token = Str::random(40);
+   $client->save();
+      return $this->apiResponse(1,'success',[
+          'api_token'=>$client->api_token,
+          'Client'=>$client,
+      ]);
+
+}
 
    function smsMisr($to, $message)
    {
@@ -63,29 +90,75 @@ class mainController extends Controller
         return $this->apiResponse(1,'success',$bloodType);
 
     }
-    public function createDonationRequest(Request $request){
-        $validator = validator()->make($request->all(),[
-            'patient_name'=>'required',
-            'patient_phone'=>'required',
-            'city_id'=>'required',
-            'hospital_name'=>'required',
-            'details'=>'required',
-            'letitude'=>'required',
-            'longitude'=>'required',
-            'bags_num'=>'required',
+
+        // $donationRequest = $request->user()->Requests()->create($request->all());
 
 
-        ]);
-        if($validator->fails())
-        {
-            return $this->apiResponse(0,$validator->errors()->first(),$validator->errors());
+    //   $clientids = $donationRequest->City->governorate;
+    //   dd($clientids);
 
-        }
 
-        $clientRequest = DanationRequest::create($request->all());
-        return $this->apiResponse(1,'تم الاضافه بنجاح',$clientRequest);
 
+
+//         ->clients()
+
+
+//         ->whereHas('BloodTypes',function($q)use($request){$q->where('blood_types.id',$request->blood_type_id);
+//         })->pluck('clients.id')->toArray();
+
+
+// if(count($clientids))
+// {
+// $notification = $donationRequest->Notification()->create([
+// 'tittle'=>'احتاج متبرع لفصيله',
+// 'content'=>'احتاج متبرع لفصيله والحاله حرجه',
+// ]);
+
+// $notification->clients()->attach($clientids);
+// $tokens = $client
+
+// }
+
+
+
+
+
+
+
+
+
+
+
+public function createGonvernorate (Request $request){
+    $validator = validator([
+        'name'=>'required',
+    ]);
+    if($validator->fails())
+    {
+        return $this->apiResponse(0,$validator->errors(),$validator);
     }
+    $createGovernorate = Governorates::create($request->all());
+
+    return $this->apiResponse(1,'success',$validator);
+
+}
+
+
+public function createCity (Request $request){
+    $validator = validator([
+        'name'=>'required',
+        'governorates_id'=>'required',
+    ]);
+    if($validator->fails())
+    {
+        return $this->apiResponse(0,$validator->errors(),$validator);
+    }
+    $createGovernorate = City::create($request->all());
+
+    return $this->apiResponse(1,'success',$createGovernorate);
+
+}
+
 
     public function category(){
         $category = Category::all();
@@ -207,4 +280,38 @@ public function verifNew(Request $request){
 
     }
 }
+
+
+
+public function createDonationRequest(Request $request){
+    $validator = validator([
+        'patient_name'=>'required',
+        'patient_phone'=>'required',
+        'city_id'=>'required',
+        'hospital_name'=>'required',
+        'details'=>'required',
+        'letitude'=>'required',
+        'longitude'=>'required',
+        'bags_num'=>'required',
+
+
+    ]);
+    if($validator->fails())
+    {
+        return $this->apiResponse(0,$validator->errors()->first(),$validator->errors());
+
+
+    }
+    $client = DanationRequest::create($request->all());
+
+    return $this->apiResponse(1,'تم الاضافه بنجاح',$client);
+
+
+
+}
+
+
+
+
+
 }

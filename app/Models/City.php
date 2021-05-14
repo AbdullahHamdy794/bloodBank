@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class City extends Model 
+class City extends Model
 {
 
     protected $table = 'cities';
     public $timestamps = true;
-    protected $fillable = array('name');
+    protected $fillable = array('name','governorates_id');
 
     public function clients()
     {

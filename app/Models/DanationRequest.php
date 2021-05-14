@@ -16,7 +16,7 @@ class DanationRequest extends Model
         return $this->belongsTo('App\Models\City');
     }
 
-    public function cityClient()
+    public function client()
     {
         return $this->belongsTo('App\Models\Client');
     }

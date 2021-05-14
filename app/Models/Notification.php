@@ -11,7 +11,7 @@ class Notification extends Model
     public $timestamps = true;
     protected $fillable = array('tittle', 'content');
 
-    public function clientsNotification()
+    public function clients()
     {
         return $this->belongsToMany('App\Models\Client');
     }

@@ -28,7 +28,7 @@ class Client extends Authenticatable
         return $this->belongsToMany('App\Models\Post');
     }
 
-    public function clientRequests()
+    public function Requests()
     {
         return $this->hasMany('App\Models\DanationRequest');
     }
@@ -37,14 +37,19 @@ class Client extends Authenticatable
         return $this->belongsToMany('App\Models\Notification');
     }
 
-    public function getGovernorate()
+    public function Governorate()
     {
         return $this->belongsToMany('App\Models\Governorates');
     }
 
-    public function clientBloodTypes()
+    public function BloodTypes()
     {
         return $this->belongsToMany('App\Models\BloodType');
+    }
+
+    public function tokens()
+    {
+        return $this->hasMany('App\Models\Token');
     }
     protected $hidden = [
         'password',

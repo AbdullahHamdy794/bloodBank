@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Trait\Helper;
 use App\Models\Client;
+use App\Models\Token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Crypt;
@@ -14,32 +15,7 @@ class authController extends Controller
 {
     use Helper;
 
-public function register(Request $request)
-{
-   $validator = validator()->make($request->all(),[
-       'name'=>'required',
-       'phone'=>'required',
-       'blood_type_id'=>'required',
-       'password'=>'required|confirmed',
-       'city_id'=>'required',
-       'last_donation_date'=>'required',
-       'email'=>'required|unique:clients',
-   ]);
-   if($validator->fails())
-   {
-       return $this->apiResponse(0,$validator->errors()->first(),$validator->errors());
 
-   }
-   $request->merge(['password'=>bcrypt($request->password)]);
-   $client = Client::create($request->all());
-   $client->api_token = Str::random(40);
-   $client->save();
-      return $this->apiResponse(1,'success',[
-          'api_token'=>$client->api_token,
-          'Client'=>$client,
-      ]);
-
-}
 public function login(Request $request){
     $validator = validator()->make($request->all(),[
 
@@ -72,5 +48,32 @@ if($client)
     return $this->apiResponse(0,'لا يوجد بيانات','');
 
 }
+}
+public function registerToken(Request $request){
+   $validator = validator([
+       'token'=>'required',
+       'platform'=>'required',
+
+   ]);
+   if($validator->fails())
+   {
+       $data = $validator->errors();
+       return $this->apiResponse(0,$validator->errors()->first(),$data);
+   }
+   Token::where('token',$request->token)->delete();
+   $request->user()->tokens->create($request->all());
+}
+public function removeToken(Request $request){
+    $validator = validator([
+        'token'=>'required'
+    ]);
+    if($validator->fails())
+    {
+        $data = $validator->errors();
+        return $this->apiResponse(0,$validator->errors()->first(),$data);
+    }
+    Token::where('token',$request->token)->delete();
+    return $this->apiResponse(1,'deleted token succesfully',$validator);
+
 }
 }
