@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Contracts\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role as ModelsRole;
 
 class HomeController extends Controller
 {
@@ -23,6 +27,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+       return view('home');
     }
 }

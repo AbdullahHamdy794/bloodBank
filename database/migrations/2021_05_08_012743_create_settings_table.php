@@ -12,10 +12,13 @@ class CreateSettingsTable extends Migration {
 			$table->timestamps();
 			$table->text('notification_setting_text');
 			$table->string('about_app');
+			$table->string('intro');
 			$table->string('phone');
 			$table->string('email');
 			$table->string('fb_link');
 			$table->string('tw_link');
+			$table->string('googleStore');
+			$table->string('googleIos');
 			$table->string('insta_link');
 		});
 	}

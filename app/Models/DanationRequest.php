@@ -23,7 +23,7 @@ class DanationRequest extends Model
 
     public function Notification()
     {
-        return $this->hasOne('App\Models\Notification');
+        return $this->hasMany('App\Models\Notification');
     }
 
 }

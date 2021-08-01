@@ -11,8 +11,9 @@ class CreateTokensTable extends Migration {
 			$table->increments('id');
 			$table->timestamps();
 			$table->integer('client_id')->unsigned();
+			$table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
 			$table->string('token');
-			$table->string('platform');
+			$table->enum('type',['android','ios']);
 		});
 	}
 

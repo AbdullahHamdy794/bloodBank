@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use Illuminate\Notifications\Notifiable;
 
 class Client extends Authenticatable
 {
+    use Notifiable;
 
     protected $table = 'clients';
+    protected $guarded = array();
     public $timestamps = true;
     protected $fillable = array('phone', 'email', 'password', 'name', 'd_o_b', 'blood_type_id', 'last_donation_date', 'city_id', 'pin_code');
 
@@ -37,9 +39,9 @@ class Client extends Authenticatable
         return $this->belongsToMany('App\Models\Notification');
     }
 
-    public function Governorate()
+    public function governorates()
     {
-        return $this->belongsToMany('App\Models\Governorates');
+        return $this->belongsToMany('App\Models\Governorate');
     }
 
     public function BloodTypes()

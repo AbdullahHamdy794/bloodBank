@@ -3,13 +3,14 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class CreateForeignKeys extends Migration {
 
 	public function up()
 	{
 		Schema::table('clients', function(Blueprint $table) {
-			$table->foreign('blood_type_id')->references('id')->on('clients')
+			$table->foreign('blood_type_id')->references('id')->on('blood_types')
 						->onDelete('no action')
 						->onUpdate('no action');
 		});

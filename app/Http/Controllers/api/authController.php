@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Trait\Helper;
 use App\Models\Client;
 use App\Models\Token;
+use App\Trait\Helper as TraitHelper;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Crypt;
+
 use Illuminate\Support\Facades\Hash;
 
 class authController extends Controller
 {
-    use Helper;
+    use TraitHelper;
 
 
 public function login(Request $request){

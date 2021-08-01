@@ -18,7 +18,7 @@ class City extends Model
 
     public function governorate()
     {
-        return $this->belongsTo('App\Models\Governorates');
+        return $this->belongsTo('App\Models\Governorate','governorates_id');
     }
 
 }

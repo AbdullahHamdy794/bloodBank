@@ -21,7 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::group(['prefix'=>'v1'],function(){
-    Route::get('citys',[mainController::class,'cities']);
+    Route::get('cities',[mainController::class,'cities']);
     Route::post('register',[mainController::class,'register']);
     Route::post('login',[authController::class,'login']);
     Route::get('bloodtype',[mainController::class,'bloodType']);
@@ -35,7 +35,8 @@ Route::group(['prefix'=>'v1'],function(){
     Route::get('myFavourite',[mainController::class,'FavouriteMe']);
     Route::post('insertCity',[mainController::class,'createCity']);
     Route::get('governorate',[mainController::class,'governorate']);
-    Route::post('insertGovernorate',[mainController::class,'createGonvernorate']);
+    // Route::post('insertGovernorate',[mainController::class,'createGonvernorate']);
+    Route::post('newPasssowrd',[mainController::class,'newPass']);
 
 
     Route::group(['middleware'=>'auth:api'],function(){
@@ -43,7 +44,7 @@ Route::group(['prefix'=>'v1'],function(){
     Route::post('newpass',[mainController::class,'verifNew']);
     Route::post('settings',[mainController::class,'setting']);
     Route::post('donationRequest',[mainController::class,'createDonationRequest']);
-
+    Route::post('NotificationSetting',[mainController::class,'notificationSetting']);
 
 
 
@@ -56,10 +57,3 @@ Route::group(['prefix'=>'v1'],function(){
 
 
 });
-//MAIL_MAILER=smtp
-//MAIL_HOST=smtp.mailtrap.io
-////MAIL_PORT=2525
-//MAIL_USERNAME=c07ab7d90a0599
-//MAIL_PASSWORD=79250dc1c9db50
-//MAIL_ENCRYPTION=tls
-//MAIL_FROM_ADDRESS=abdullahhamdy29@gmail.com

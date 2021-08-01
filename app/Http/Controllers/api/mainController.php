@@ -12,10 +12,11 @@ use App\Models\City;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\DanationRequest;
-use App\Models\Governorates;
+use App\Models\Governorate;
 use App\Models\Notification;
 use App\Models\Post;
 use App\Models\Setting;
+use App\Models\Token;
 use App\Trait\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -81,7 +82,7 @@ class mainController extends Controller
    }
 
     public function governorate(){
-        $governorate = Governorates::all();
+        $governorate = Governorate::all();
         return $this->apiResponse(1,'success',$governorate);
 
     }
@@ -90,38 +91,55 @@ class mainController extends Controller
         return $this->apiResponse(1,'success',$bloodType);
 
     }
-
-        // $donationRequest = $request->user()->Requests()->create($request->all());
-
-
-    //   $clientids = $donationRequest->City->governorate;
-    //   dd($clientids);
-
-
-
-
-//         ->clients()
-
-
-//         ->whereHas('BloodTypes',function($q)use($request){$q->where('blood_types.id',$request->blood_type_id);
-//         })->pluck('clients.id')->toArray();
+    public function createDonationRequest(Request $request){
+        $validator = validator()->make($request->all(),[
+            'patient_name'=>'required',
+            'patient_phone'=>'required',
+            // 'city_id'=>'required',
+            'hospital_name'=>'required',
+            'details'=>'required',
+            'letitude'=>'required',
+            'longitude'=>'required',
+            'bags_num'=>'required',
 
 
-// if(count($clientids))
-// {
-// $notification = $donationRequest->Notification()->create([
-// 'tittle'=>'احتاج متبرع لفصيله',
-// 'content'=>'احتاج متبرع لفصيله والحاله حرجه',
-// ]);
+        ]);
+        if($validator->fails())
+        {
+            return $this->apiResponse(0,$validator->errors()->first(),$validator->errors());
 
-// $notification->clients()->attach($clientids);
-// $tokens = $client
+        }
 
-// }
+        $donationRequest = $request->user()->Requests()->create($request->all());
 
 
+     $clientids = $donationRequest ->City->governorate-> clients()
+     ->whereHas('BloodTypes',function($q)use($request){$q->where('blood_types.id',$request->blood_type_id);
+  })->pluck('clients.id')->toArray();
 
 
+if(count($clientids))
+{
+$notification = $donationRequest->Notification()->create([
+'tittle'=>'احتاج متبرع لفصيله',
+'content'=>'احتاج متبرع لفصيله والحاله حرجه',
+]);
+
+$notification->clients()->attach($clientids);
+$tokens = Token::whereIn('client_id',$clientids)->where('token_id','!=',null)->pluck('token')->toArray();
+if(count($tokens)){
+$this->notifyByFirebase($notification->title,$notification->content,$tokens,[
+    'donation' => $donationRequest
+]);
+}
+}
+
+
+
+
+return $this->apiResponse(1,'تم الاضافه بنجاح',$donationRequest);
+
+}
 
 
 
@@ -137,7 +155,7 @@ public function createGonvernorate (Request $request){
     {
         return $this->apiResponse(0,$validator->errors(),$validator);
     }
-    $createGovernorate = Governorates::create($request->all());
+    $createGovernorate = Governorate::create($request->all());
 
     return $this->apiResponse(1,'success',$validator);
 
@@ -155,7 +173,7 @@ public function createCity (Request $request){
     }
     $createGovernorate = City::create($request->all());
 
-    return $this->apiResponse(1,'success',$createGovernorate);
+    return $this->apiResponse(1,'success',$validator);
 
 }
 
@@ -193,19 +211,19 @@ public function resetPassword(Request $request){
      $user = Client::where('phone',$request->phone)->first();
      if($user)
      {
-         $code = mt_rand(40,110);
+         $code = mt_rand(1111,9999);
          $updatepin = $user->update(['pin_code'=>$code]);
          if($updatepin){
         // $this->smsMisr($request->phone,"your ResetCode is".$code);
 
-Mail::to($user->email)
-->bcc("abdullahhamdy29@gmail.com")
-->send(new Reset($code));
-return $this->apiResponse(1,'success','');
+            Mail::to($user->email)
+            ->bcc("abdullahhamdy29@gmail.com")
+            ->send(new Reset($code));
+            return $this->apiResponse(1,'success','');
 
-}else{
-    return $this->apiResponse(0,'mistake','');
-}
+        }else{
+            return $this->apiResponse(0,'mistake','');
+        }
      }
 
     }
@@ -217,7 +235,7 @@ return $this->apiResponse(1,'success','');
     }
 
     public function donationRequest(){
-        $donation = DanationRequest::all();
+        $donation = DanationRequest::paginate(10);
         return $this->apiResponse(1,'success',$donation);
     }
 
@@ -280,38 +298,43 @@ public function verifNew(Request $request){
 
     }
 }
+public function notificationSetting(Request $request){
+
+    $request ->user()-> governorates()->attach($request->governorates);
+    $request ->user()-> bloodTypes()->attach($request->BloodTypes);
+return $this->apiResponse(1,'success','');
+}
+
+public function newPass(Request $request){
 
 
+  $validator = validator()->make($request->all(),[
+   'phone'=>'required',
+    'password'=>'required',
+    'pin_code'=>'required'
+          ]);
 
-public function createDonationRequest(Request $request){
-    $validator = validator([
-        'patient_name'=>'required',
-        'patient_phone'=>'required',
-        'city_id'=>'required',
-        'hospital_name'=>'required',
-        'details'=>'required',
-        'letitude'=>'required',
-        'longitude'=>'required',
-        'bags_num'=>'required',
+if($validator->fails()){
+     return $this->apiResponse(0,$validator->errors(),$validator->errors()->first());
+    }
 
-
-    ]);
-    if($validator->fails())
+$client = Client::where('phone',$request->phone)->first();
+if($client){
+    if($client->pin_code==$request->pin_code)
     {
-        return $this->apiResponse(0,$validator->errors()->first(),$validator->errors());
+        $client->update([
+            'password'=>$request->password
+        ]);
+        return $this->apiResponse(1,'success','تم الحفظ بنجاح');
 
+        }
+    }else{
 
     }
-    $client = DanationRequest::create($request->all());
-
-    return $this->apiResponse(1,'تم الاضافه بنجاح',$client);
-
-
-
 }
 
 
 
 
-
 }
+
